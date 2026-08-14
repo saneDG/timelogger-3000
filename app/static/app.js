@@ -18,6 +18,7 @@ const progressBar = document.querySelector("#progress-bar");
 const stopProcessing = document.querySelector("#stop-processing");
 const copyPanel = document.querySelector("#copy-panel");
 const timesheetOutput = document.querySelector("#timesheet-output");
+const newTimesheet = document.querySelector("#new-timesheet");
 const locale = navigator.languages?.[0] || navigator.language || "en-US";
 let currentRunId = null;
 let generationPanel = null;
@@ -241,6 +242,22 @@ generate.addEventListener("click", async () => {
     if (processingStopped) await api(`/api/runs/${run.id}/cancel`, {method:"POST"});
     else await pollRun(run.id);
   } catch (error) { hideGenerationPanel(); generate.disabled = false; message.textContent = error.message; message.className = "message error"; }
+});
+newTimesheet.addEventListener("click", () => {
+  processingStopped = true;
+  hideGenerationPanel();
+  currentRunId = null;
+  result.classList.add("hidden");
+  result.innerHTML = "";
+  copyPanel.classList.add("hidden");
+  progressPanel.classList.add("hidden");
+  timesheetOutput.querySelector("code").textContent = "";
+  message.textContent = "Choose a range to generate a new timesheet.";
+  message.className = "message";
+  generate.disabled = false;
+  history.replaceState({}, "", "/");
+  applyPreset("today");
+  document.querySelector("#workspace").scrollIntoView({behavior: "smooth", block: "start"});
 });
 document.querySelector("#copy-all").addEventListener("click", async () => {
   const text = timesheetOutput.textContent;
