@@ -2,6 +2,10 @@
 
 A fully local time logging assistant. It reads canonical ActivityWatch events, builds a private activity timeline, asks a model running in LM Studio to group that timeline into practical tasks, and uses the same local model to polish final timesheet summaries.
 
+## Demo
+
+[Watch demo video here](https://www.youtube.com/embed/x-JVyruLAR4)
+
 ## Privacy defaults
 
 - All AI processing runs through the local LM Studio API.
