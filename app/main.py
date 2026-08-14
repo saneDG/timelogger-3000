@@ -113,14 +113,14 @@ def _demo_activity_result(start: datetime, end: datetime) -> Dict[str, Any]:
     duration = max(3600, int((end - start).total_seconds()))
     anchor = max(start, end - timedelta(seconds=min(duration, 4 * 3600)))
     samples = [
-        (0, 52 * 60, "Code", ["Work", "Development"], "Implement local timesheet generation"),
-        (58 * 60, 43 * 60, "Code", ["Work", "Development"], "Add Git activity evidence and tests"),
-        (108 * 60, 24 * 60, "Terminal", ["Work", "Development"], "Run local integration checks"),
-        (140 * 60, 38 * 60, "Code", ["Work", "Development"], "Refine timesheet output and copy flow"),
-        (184 * 60, 19 * 60, "Firefox", ["Work", "Research"], "Review implementation documentation"),
+        (0, 45 * 60, "Code", ["Work", "Development"], "Atlas project: implement the local timesheet generation flow"),
+        (65 * 60, 40 * 60, "Code", ["Work", "Development"], "Beacon project: add Git activity evidence and automated tests"),
+        (125 * 60, 20 * 60, "Terminal", ["Work", "Development"], "Beacon project: run local integration checks"),
+        (165 * 60, 35 * 60, "Code", ["Work", "Development"], "Atlas project: refine output and copy workflow"),
+        (220 * 60, 18 * 60, "Firefox", ["Work", "Research"], "Cinder project: review implementation documentation"),
     ]
     segments = []
-    for offset, seconds, app, category, title in samples:
+    for session, (offset, seconds, app, category, title) in enumerate(samples):
         segment_start = anchor + timedelta(seconds=offset)
         if segment_start >= end:
             break
@@ -129,7 +129,7 @@ def _demo_activity_result(start: datetime, end: datetime) -> Dict[str, Any]:
         segments.append({
             "id": str(uuid4()), "start": segment_start.isoformat(), "end": segment_end.isoformat(),
             "duration_seconds": actual_seconds, "app": app, "category": category,
-            "title": title, "domain": None, "session": 0,
+            "title": title, "domain": None, "session": session,
         })
     active_seconds = round(sum(item["duration_seconds"] for item in segments), 3)
     return {
@@ -138,6 +138,16 @@ def _demo_activity_result(start: datetime, end: datetime) -> Dict[str, Any]:
         "apps": [{"app": app, "seconds": round(sum(item["duration_seconds"] for item in segments if item["app"] == app), 3)} for app in sorted({item["app"] for item in segments})],
         "browser_tracking": False, "segments": segments,
     }
+
+
+def _apply_demo_project_hints(tasks: List[Dict[str, Any]], segments: List[Dict[str, Any]]) -> None:
+    """Keep explicitly named mock projects attached to real model task groups."""
+    by_id = {segment["id"]: segment for segment in segments}
+    for task in tasks:
+        evidence = " ".join(by_id[item]["title"] for item in task["segment_ids"])
+        matches = [name for name in ("Atlas", "Beacon", "Cinder") if (name + " project:").casefold() in evidence.casefold()]
+        if len(matches) == 1:
+            task["project_hint"] = matches[0]
 
 
 def _process_run(run_id: str, request: CreateRunRequest) -> None:
@@ -168,6 +178,8 @@ def _process_run(run_id: str, request: CreateRunRequest) -> None:
         model, tasks = lm_studio.classify(
             segments, request.model or settings.lm_studio_model, run_id=run_id
         )
+        if request.demo:
+            _apply_demo_project_hints(tasks, segments)
         if repository.is_cancelled(run_id):
             return
         repository.set_status(run_id, "saving_results")
@@ -323,12 +335,29 @@ def delete_project(project_id: str):
         raise HTTPException(status_code=404, detail="Project not found.")
 
 
+def _ensure_demo_projects() -> List[Dict[str, Any]]:
+    projects = repository.list_projects(active_only=True)
+    existing = {project["name"].casefold() for project in projects}
+    for name, keywords in (
+        ("Atlas", ["atlas", "timesheet", "output"]),
+        ("Beacon", ["beacon", "git", "integration"]),
+        ("Cinder", ["cinder", "documentation", "research"]),
+    ):
+        if name.casefold() not in existing:
+            repository.create_project({
+                "name": name, "customer": None, "description": "Synthetic demo project.",
+                "billing_code": None, "aliases": [], "domains": [], "keywords": keywords,
+                "active": True,
+            })
+    return repository.list_projects(active_only=True)
+
+
 @app.post("/api/runs/{run_id}/entries")
 def generate_entries(run_id: str, request: GenerateEntriesRequest):
     run = repository.get(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found.")
-    projects = repository.list_projects(active_only=True)
+    projects = _ensure_demo_projects() if run.get("hostname") == "demo-workstation" else repository.list_projects(active_only=True)
     entries = build_entries(
         run["tasks"], run["segments"], projects, request.increment_minutes
     )
