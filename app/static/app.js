@@ -20,6 +20,7 @@ const copyPanel = document.querySelector("#copy-panel");
 const timesheetOutput = document.querySelector("#timesheet-output");
 const newTimesheet = document.querySelector("#new-timesheet");
 const locale = navigator.languages?.[0] || navigator.language || "en-US";
+const demoMode = document.body.dataset.demo === "true";
 let currentRunId = null;
 let generationPanel = null;
 let generationJokeTimer = null;
@@ -107,12 +108,17 @@ function applyPreset(preset) {
 async function checkStatus() {
   try {
     const data = await api("/api/status");
-    if (!data.connected) throw new Error(data.error || "Not reachable");
+    if (!data.connected && !demoMode) throw new Error(data.error || "Not reachable");
     connection.className = "status connected";
-    const managed = data.activitywatch_mode === "bundled" ? " · built in" : "";
-    connection.innerHTML = `<span></span>ActivityWatch ${escapeHtml(data.version || "connected")}${managed}${data.browser_tracking ? " · browser data" : " · browser extension optional"}`;
-    hostname.innerHTML = '<option value="">Auto-detect</option>' + data.hostnames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
-    if (data.hostnames.length === 1) hostname.value = data.hostnames[0];
+    if (demoMode) {
+      connection.innerHTML = "<span></span>Synthetic ActivityWatch demo";
+      hostname.innerHTML = '<option value="demo-workstation">Demo workstation</option>';
+    } else {
+      const managed = data.activitywatch_mode === "bundled" ? " · built in" : "";
+      connection.innerHTML = `<span></span>ActivityWatch ${escapeHtml(data.version || "connected")}${managed}${data.browser_tracking ? " · browser data" : " · browser extension optional"}`;
+      hostname.innerHTML = '<option value="">Auto-detect</option>' + data.hostnames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+      if (data.hostnames.length === 1) hostname.value = data.hostnames[0];
+    }
     const lm = data.lm_studio || {};
     if (lm.connected && lm.models.length) {
       lmConnection.className = "status connected";
@@ -129,7 +135,7 @@ function showGenerationPanel() {
   generationPanel.innerHTML = `<pre class="ascii-spinner" aria-hidden="true"></pre><pre class="ascii-stream" aria-live="polite">┌─ LOCAL AI ENGINE ─────────────────────────────────────────────┐
 │  <span class="generation-title">Preparing activity</span>
 │  <span class="generation-detail">Preparing your local timesheet…</span>
-└────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 
  AW_EVENTS ──┐
              ├── [ LM STUDIO ] ── TIMESHEET
@@ -236,8 +242,8 @@ generate.addEventListener("click", async () => {
   processingStopped = false; currentRunId = null;
   generate.disabled = true; result.classList.add("hidden"); copyPanel.classList.add("hidden"); showGenerationPanel(); renderProgress("pending");
   try {
-    localStorage.setItem("timelogger.gitDirectory", gitDirectory.value.trim());
-    const run = await api("/api/runs", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({range_start:start.toISOString(),range_end:end.toISOString(),hostname:hostname.value || null,model:model.value || null,git_directory:gitDirectory.value.trim() || null})});
+    if (!demoMode) localStorage.setItem("timelogger.gitDirectory", gitDirectory.value.trim());
+    const run = await api("/api/runs", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({range_start:start.toISOString(),range_end:end.toISOString(),hostname:hostname.value || null,model:model.value || null,git_directory:demoMode ? null : gitDirectory.value.trim() || null,demo:demoMode})});
     currentRunId = run.id;
     if (processingStopped) await api(`/api/runs/${run.id}/cancel`, {method:"POST"});
     else await pollRun(run.id);
@@ -267,5 +273,5 @@ document.querySelector("#copy-all").addEventListener("click", async () => {
 document.querySelectorAll(".preset").forEach(button => button.addEventListener("click", () => applyPreset(button.dataset.preset)));
 [startDateInput,startTimeInput,endDateInput,endTimeInput].forEach(input => input.addEventListener("change", () => { document.querySelectorAll(".preset").forEach(button => button.classList.remove("active")); updateLocalizedRange(); }));
 async function restoreSelectedRun() { const id = new URLSearchParams(location.search).get("run"); if (id) renderResult(await api(`/api/runs/${encodeURIComponent(id)}`)); }
-gitDirectory.value = localStorage.getItem("timelogger.gitDirectory") || "";
-applyPreset("today"); checkStatus(); restoreSelectedRun();
+if (!demoMode) gitDirectory.value = localStorage.getItem("timelogger.gitDirectory") || "";
+applyPreset(demoMode ? "last8" : "today"); checkStatus(); if (!demoMode) restoreSelectedRun();

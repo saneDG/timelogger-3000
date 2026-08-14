@@ -2,9 +2,10 @@ import asyncio
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
+from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -53,6 +54,7 @@ class CreateRunRequest(BaseModel):
     hostname: Optional[str] = None
     model: Optional[str] = None
     git_directory: Optional[str] = Field(default=None, max_length=2000)
+    demo: bool = False
 
 
 class UpdateTaskRequest(BaseModel):
@@ -102,20 +104,59 @@ class GenerateLocalSummaryRequest(SummaryPreviewRequest):
     model: Optional[str] = None
 
 
+def _demo_activity_result(start: datetime, end: datetime) -> Dict[str, Any]:
+    """Synthetic local-only evidence for the unlinked demo page.
+
+    It deliberately follows the normal segment shape so classification, entry
+    construction, and summary generation remain the real application pipeline.
+    """
+    duration = max(3600, int((end - start).total_seconds()))
+    anchor = max(start, end - timedelta(seconds=min(duration, 4 * 3600)))
+    samples = [
+        (0, 52 * 60, "Code", ["Work", "Development"], "Implement local timesheet generation"),
+        (58 * 60, 43 * 60, "Code", ["Work", "Development"], "Add Git activity evidence and tests"),
+        (108 * 60, 24 * 60, "Terminal", ["Work", "Development"], "Run local integration checks"),
+        (140 * 60, 38 * 60, "Code", ["Work", "Development"], "Refine timesheet output and copy flow"),
+        (184 * 60, 19 * 60, "Firefox", ["Work", "Research"], "Review implementation documentation"),
+    ]
+    segments = []
+    for offset, seconds, app, category, title in samples:
+        segment_start = anchor + timedelta(seconds=offset)
+        if segment_start >= end:
+            break
+        segment_end = min(segment_start + timedelta(seconds=seconds), end)
+        actual_seconds = max(5, (segment_end - segment_start).total_seconds())
+        segments.append({
+            "id": str(uuid4()), "start": segment_start.isoformat(), "end": segment_end.isoformat(),
+            "duration_seconds": actual_seconds, "app": app, "category": category,
+            "title": title, "domain": None, "session": 0,
+        })
+    active_seconds = round(sum(item["duration_seconds"] for item in segments), 3)
+    return {
+        "event_count": len(segments), "active_seconds": active_seconds,
+        "categories": [{"name": ["Work", "Development"], "seconds": active_seconds}],
+        "apps": [{"app": app, "seconds": round(sum(item["duration_seconds"] for item in segments if item["app"] == app), 3)} for app in sorted({item["app"] for item in segments})],
+        "browser_tracking": False, "segments": segments,
+    }
+
+
 def _process_run(run_id: str, request: CreateRunRequest) -> None:
     repository.mark_running(run_id, "reading_activity")
     try:
-        hostname, result = activitywatch.collect(
-            request.range_start,
-            request.range_end,
-            request.hostname or settings.activitywatch_hostname,
-        )
+        if request.demo:
+            hostname, result = "demo-workstation", _demo_activity_result(request.range_start, request.range_end)
+        else:
+            hostname, result = activitywatch.collect(
+                request.range_start,
+                request.range_end,
+                request.hostname or settings.activitywatch_hostname,
+            )
         if repository.is_cancelled(run_id):
             return
         repository.set_hostname(run_id, hostname)
         segments = result.pop("segments")
         repository.set_status(run_id, "collecting_git")
-        git_changes = collect_changes(
+        git_changes = [] if request.demo else collect_changes(
             request.git_directory or settings.git_directory,
             request.range_start,
             request.range_end,
@@ -156,6 +197,11 @@ def history_page() -> FileResponse:
 @app.get("/licenses", include_in_schema=False)
 def licenses_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "licenses.html")
+
+
+@app.get("/demo", include_in_schema=False)
+def demo_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "demo.html", headers={"X-Robots-Tag": "noindex, nofollow"})
 
 
 @app.post("/api/git/select-directory")
