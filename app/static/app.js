@@ -180,8 +180,15 @@ function renderProgress(status) {
   }
   document.querySelectorAll(".progress-steps li").forEach((step, i) => { step.classList.toggle("complete", i < index); step.classList.toggle("active", i === Math.max(index,0)); });
 }
+function formatEntryRange(entry) {
+  const start = new Date(entry.start), end = new Date(entry.end);
+  const dateFormat = new Intl.DateTimeFormat(locale, {weekday:"short", day:"numeric", month:"short", year:"numeric"});
+  const timeFormat = new Intl.DateTimeFormat(locale, {hour:"2-digit", minute:"2-digit"});
+  if (start.toDateString() === end.toDateString()) return `${dateFormat.format(start)} · ${timeFormat.format(start)}–${timeFormat.format(end)}`;
+  return `${dateFormat.format(start)} ${timeFormat.format(start)} → ${dateFormat.format(end)} ${timeFormat.format(end)}`;
+}
 function formatTimesheet(entries) {
-  return entries.map(entry => `${entry.project_name || "Unassigned project"} — ${duration(entry.rounded_seconds)}\n${entry.final_summary || entry.local_description}`).join("\n\n");
+  return entries.map(entry => `${entry.project_name || "Unassigned project"} — ${duration(entry.rounded_seconds)}\n${formatEntryRange(entry)}\n${entry.final_summary || entry.local_description}`).join("\n\n");
 }
 function renderResult(run) {
   currentRunId = run.id; renderProgress(run.status);
