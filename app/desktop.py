@@ -26,7 +26,7 @@ def _wait_until_ready(url: str, timeout: float = 15) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
-            with urllib.request.urlopen(url + "/api/status", timeout=1):
+            with urllib.request.urlopen(url.rstrip("/") + "/api/status", timeout=1):
                 return
         except Exception:
             time.sleep(0.1)
@@ -43,7 +43,9 @@ def main() -> None:
     from app.main import app
 
     port = _available_port()
-    url = "http://127.0.0.1:%d" % port
+    # Cocoa WebKit is stricter than browsers about a URL without a path.
+    # Use an explicit root path for the initial navigation.
+    url = "http://127.0.0.1:%d/" % port
     config = uvicorn.Config(
         app, host="127.0.0.1", port=port, log_level="warning",
         access_log=False, server_header=False,
