@@ -4,7 +4,7 @@ A fully local time logging assistant. It reads canonical ActivityWatch events, b
 
 ## Demo
 
-[Watch demo video here](https://www.youtube.com/embed/x-JVyruLAR4)
+[Watch demo video here](https://youtu.be/x-JVyruLAR4)
 
 ## Privacy defaults
 
