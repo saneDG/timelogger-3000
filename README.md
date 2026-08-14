@@ -2,6 +2,8 @@
 
 A fully local time logging assistant. It reads canonical ActivityWatch events, builds a private activity timeline, asks a model running in LM Studio to group that timeline into practical tasks, and uses the same local model to polish final timesheet summaries.
 
+<img width="2907" height="3076" alt="kuva" src="https://github.com/user-attachments/assets/fc4ba4db-52da-4527-a2c3-3437aa5a6c47" />
+
 ## Demo
 
 [Watch demo video here](https://youtu.be/x-JVyruLAR4)
