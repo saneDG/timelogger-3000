@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>History · TimeLogger 3000</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <aside class="app-rail">
+    <a class="brand" href="/" aria-label="TimeLogger 3000 home">
+      <span class="brand-mark" aria-hidden="true">T</span>
+      <span><strong>TimeLogger</strong><small>Local AI</small></span>
+    </a>
+    <nav class="rail-nav" aria-label="Application">
+      <a href="/"><span aria-hidden="true">⌁</span>Generate</a>
+      <a class="active" href="/history"><span aria-hidden="true">◷</span>History</a>
+      <a href="/licenses"><span aria-hidden="true">§</span>Licenses</a>
+    </nav>
+    <div class="rail-privacy"><span></span><div><strong>Local processing</strong><small>No cloud AI</small></div></div>
+  </aside>
+  <div class="app-frame">
+    <header class="topbar"><p>Local run archive</p></header>
+    <main class="workspace">
+      <header class="page-header">
+        <div><p class="eyebrow">LOCAL ARCHIVE</p><h1>Previous runs</h1><p class="subtitle">Open a completed run to review its entries or copy the final timesheet again.</p></div>
+        <button id="refresh-history" class="secondary" type="button">Refresh</button>
+      </header>
+      <section class="panel history-panel" aria-labelledby="history-title">
+        <div class="history-columns" aria-hidden="true"><span>Activity range</span><span>Device</span><span>Active time</span><span>Status</span></div>
+        <div id="history-list" class="history-list"><p class="muted">Loading local runs…</p></div>
+      </section>
+    </main>
+  </div>
+  <script src="/static/history.js"></script>
+</body>
+</html>

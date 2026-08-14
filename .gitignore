@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+data/
+.env
+.DS_Store
+
+*.egg-info/
+build/
+dist/
+packaging/macos/TimeLogger.iconset/
+packaging/macos/TimeLogger.icns
