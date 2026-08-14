@@ -1,5 +1,4 @@
 import asyncio
-import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
@@ -230,7 +229,6 @@ async def get_status():
         asyncio.to_thread(activitywatch.status), asyncio.to_thread(lm_studio.status)
     )
     activity_status["lm_studio"] = lm_status
-    activity_status["activitywatch_mode"] = os.getenv("TIMELOGGER_ACTIVITYWATCH_MODE", "external")
     return activity_status
 
 

@@ -17,32 +17,12 @@
       "source_repository": "https://github.com/ActivityWatch/aw-core.git",
       "source_ref": "v0.5.17",
       "modified": false
-    },
-    {
-      "name": "aw-server",
-      "version": "activitywatch-v0.13.2",
-      "source_repository": "https://github.com/ActivityWatch/aw-server.git",
-      "source_ref": "b4ad07509067defec9a2a958ea9d58f3ed220c88",
-      "modified": false
-    },
-    {
-      "name": "aw-watcher-window",
-      "version": "activitywatch-v0.13.2",
-      "source_repository": "https://github.com/ActivityWatch/aw-watcher-window.git",
-      "source_ref": "7a89db41f36abe44a157e5a1fdeb572a60a4e2f9",
-      "modified": false
-    },
-    {
-      "name": "aw-watcher-afk",
-      "version": "activitywatch-v0.13.2",
-      "source_repository": "https://github.com/ActivityWatch/aw-watcher-afk.git",
-      "source_ref": "d30bb84d6cb7d36e038ded753cdafecca9a31576",
-      "modified": false
     }
   ],
-  "activitywatch_release": {
-    "tag": "v0.13.2",
-    "commit": "839d99ffabe8a0281d332a2fddfb78514266698b"
-  },
+  "planned_not_yet_distributed": [
+    "aw-server",
+    "aw-watcher-window",
+    "aw-watcher-afk"
+  ],
   "release_source_archive_url": "REPLACE_WITH_STABLE_RELEASE_URL_BEFORE_DISTRIBUTION"
 }

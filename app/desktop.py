@@ -38,14 +38,8 @@ def main() -> None:
     data_directory.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("TIMELOGGER_DB", str(data_directory / "timelogger.db"))
 
-    from app.activitywatch_runtime import BundledActivityWatch
-
-    activitywatch = BundledActivityWatch(data_directory)
-    activitywatch_mode = activitywatch.start()
-    os.environ["TIMELOGGER_ACTIVITYWATCH_MODE"] = activitywatch_mode
-
-    # Import only after desktop environment paths and managed ActivityWatch are
-    # configured. app.main constructs its services while importing the module.
+    # Import only after desktop environment paths are configured. app.main
+    # constructs its repository while importing the module.
     from app.main import app
 
     port = _available_port()
@@ -67,7 +61,6 @@ def main() -> None:
     finally:
         server.should_exit = True
         thread.join(timeout=5)
-        activitywatch.stop()
 
 
 if __name__ == "__main__":

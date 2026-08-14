@@ -2,17 +2,14 @@
 
 TimeLogger 3000 is an independent project. It is not affiliated with, endorsed by, or maintained by ActivityWatch.
 
-## ActivityWatch components currently distributed
+## ActivityWatch Python components currently distributed
 
-TimeLogger 3000 bundles and depends on the following ActivityWatch components:
+TimeLogger 3000 depends on the following ActivityWatch components:
 
 | Component | Version | License | Source |
 | --- | --- | --- | --- |
 | `aw-client` | 0.5.15 | Mozilla Public License 2.0 | https://github.com/ActivityWatch/aw-client |
 | `aw-core` | 0.5.17 | Mozilla Public License 2.0 | https://github.com/ActivityWatch/aw-core |
-| `aw-server` | ActivityWatch 0.13.2 | Mozilla Public License 2.0 | https://github.com/ActivityWatch/aw-server |
-| `aw-watcher-window` | ActivityWatch 0.13.2 | Mozilla Public License 2.0 | https://github.com/ActivityWatch/aw-watcher-window |
-| `aw-watcher-afk` | ActivityWatch 0.13.2 | Mozilla Public License 2.0 | https://github.com/ActivityWatch/aw-watcher-afk |
 
 Copyright belongs to the ActivityWatch contributors. The full Mozilla Public License 2.0 is included at `licenses/activitywatch/MPL-2.0.txt`.
 
@@ -25,6 +22,10 @@ scripts/build-activitywatch-source-bundle.sh
 Release builds must publish the generated archive beside the application installer and replace the source placeholder in `compliance/activitywatch-components.json` with its stable release URL.
 
 No ActivityWatch source files are currently modified by TimeLogger 3000. If that changes, the modified MPL-covered files, patch set, and build instructions must be included in the corresponding-source archive.
+
+## ActivityWatch executables not distributed
+
+`aw-server`, `aw-watcher-window`, and `aw-watcher-afk` are external prerequisites. Users install ActivityWatch from its official distribution; this repository does not bundle those executables.
 
 ## Browser extension
 

@@ -12,7 +12,6 @@ APP="$ROOT/dist/TimeLogger 3000.app"
 DMG="$ROOT/dist/TimeLogger-3000-$VERSION-$(uname -m).dmg"
 
 "$PYTHON" packaging/macos/create_icon.py
-"$ROOT/scripts/build-activitywatch-runtime-macos.sh"
 "$PYINSTALLER" --clean --noconfirm packaging/macos/TimeLogger3000.spec
 
 if [[ -n "${APPLE_SIGNING_IDENTITY:-}" ]]; then

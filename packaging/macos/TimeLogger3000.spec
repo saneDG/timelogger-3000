@@ -5,16 +5,11 @@ from PyInstaller.utils.hooks import collect_all, collect_submodules
 
 ROOT = Path(SPEC).resolve().parents[2]
 
-activitywatch_runtime = ROOT / "build" / "activitywatch-runtime"
-if not activitywatch_runtime.is_dir():
-    raise SystemExit("Missing bundled ActivityWatch runtime. Run scripts/build-activitywatch-runtime-macos.sh first.")
-
 datas = [
     (str(ROOT / "app" / "static"), "app/static"),
     (str(ROOT / "licenses"), "licenses"),
     (str(ROOT / "compliance"), "compliance"),
     (str(ROOT / "THIRD_PARTY_NOTICES.md"), "."),
-    (str(activitywatch_runtime), "activitywatch"),
 ]
 hiddenimports = collect_submodules("uvicorn") + collect_submodules("webview")
 for package in ("aw_client", "aw_core", "aw_datastore", "aw_transform"):
@@ -55,7 +50,6 @@ app = BUNDLE(
         "LSMinimumSystemVersion": "12.0",
         "NSHighResolutionCapable": True,
         "NSHumanReadableCopyright": "Copyright © 2026 TimeLogger 3000 contributors",
-        "NSAppleEventsUsageDescription": "TimeLogger uses a native folder picker and reads active application metadata for your local timesheet.",
-        "NSAccessibilityUsageDescription": "TimeLogger tracks the active application and idle state locally to build your timesheet.",
+        "NSAppleEventsUsageDescription": "TimeLogger uses a native folder picker when you choose a Git repositories directory.",
     },
 )

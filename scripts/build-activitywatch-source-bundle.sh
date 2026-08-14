@@ -24,16 +24,13 @@ archive_component() {
 
 archive_component "aw-client" "https://github.com/ActivityWatch/aw-client.git" "v0.5.15"
 archive_component "aw-core" "https://github.com/ActivityWatch/aw-core.git" "v0.5.17"
-archive_component "aw-server" "https://github.com/ActivityWatch/aw-server.git" "b4ad07509067defec9a2a958ea9d58f3ed220c88"
-archive_component "aw-watcher-window" "https://github.com/ActivityWatch/aw-watcher-window.git" "7a89db41f36abe44a157e5a1fdeb572a60a4e2f9"
-archive_component "aw-watcher-afk" "https://github.com/ActivityWatch/aw-watcher-afk.git" "d30bb84d6cb7d36e038ded753cdafecca9a31576"
 
 cat > "$BUNDLE/BUILDING.md" <<'EOF'
 # Corresponding source
 
 These are unmodified upstream source archives for the exact ActivityWatch components distributed with TimeLogger 3000 0.1.0.
 
-TimeLogger 3000 does not currently modify these MPL-covered components. Their upstream build instructions are included inside each source archive. The macOS runtime build procedure is also available in `scripts/build-activitywatch-runtime-macos.sh` in the TimeLogger 3000 source distribution.
+TimeLogger 3000 does not currently modify these MPL-covered components. Their upstream build instructions are included inside each source archive.
 EOF
 
 (

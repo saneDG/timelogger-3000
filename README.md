@@ -19,7 +19,7 @@ A fully local time logging assistant. It reads canonical ActivityWatch events, b
 ## Requirements
 
 - Python 3.9+
-- ActivityWatch running locally for browser development; bundled automatically in the macOS application
+- ActivityWatch installed and running locally
 - LM Studio running with a chat/instruct model loaded and its local API enabled
 - Optional: the ActivityWatch browser extension for page-title and domain context
 
@@ -90,9 +90,13 @@ scripts/notarize-macos-app.sh dist/TimeLogger-3000-0.1.0-arm64.dmg
 
 The build is native to the machine architecture. Build and notarize separately on Apple Silicon and Intel unless the full Python/dependency stack is built as universal2.
 
-The macOS package includes a native ActivityWatch 0.13.2 API server, window watcher, and AFK watcher. They start and stop with TimeLogger and store tracking data under TimeLogger’s Application Support directory. LM Studio remains an external prerequisite until an embedded model runtime is added.
+The macOS package does not include ActivityWatch or LM Studio. Install and start ActivityWatch before opening TimeLogger:
 
-On first launch, macOS may ask for Accessibility/Automation permission so the bundled watcher can read active application metadata. Browser context remains optional and is installed from the official Chrome or Firefox extension store.
+1. Download ActivityWatch from https://activitywatch.net/downloads/
+2. Start the ActivityWatch desktop application and grant macOS Accessibility permission when asked.
+3. Open TimeLogger and confirm the ActivityWatch status shows connected.
+
+LM Studio remains an external prerequisite. Browser context is optional and can be installed from the official Chrome or Firefox extension store.
 
 ## Distribution compliance
 

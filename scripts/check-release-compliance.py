@@ -17,7 +17,7 @@ for path in required:
     if not path.is_file():
         errors.append("Missing required compliance file: %s" % path.relative_to(ROOT))
 
-required_components = {"aw-client", "aw-core", "aw-server", "aw-watcher-window", "aw-watcher-afk"}
+required_components = {"aw-client", "aw-core"}
 manifest_components = {item["name"] for item in manifest["distributed_components"]}
 missing_components = required_components - manifest_components
 if missing_components:

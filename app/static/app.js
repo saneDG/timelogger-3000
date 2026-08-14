@@ -114,8 +114,7 @@ async function checkStatus() {
       connection.innerHTML = "<span></span>Synthetic ActivityWatch demo";
       hostname.innerHTML = '<option value="demo-workstation">Demo workstation</option>';
     } else {
-      const managed = data.activitywatch_mode === "bundled" ? " · built in" : "";
-      connection.innerHTML = `<span></span>ActivityWatch ${escapeHtml(data.version || "connected")}${managed}${data.browser_tracking ? " · browser data" : " · browser extension optional"}`;
+      connection.innerHTML = `<span></span>ActivityWatch ${escapeHtml(data.version || "connected")}${data.browser_tracking ? " · browser data" : " · browser extension optional"}`;
       hostname.innerHTML = '<option value="">Auto-detect</option>' + data.hostnames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
       if (data.hostnames.length === 1) hostname.value = data.hostnames[0];
     }
